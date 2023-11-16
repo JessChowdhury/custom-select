@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SelectInput, useField } from 'payload/components/forms';
 
-export const CustomSelectComponent: React.FC<{ path: string }> = ({ path }) => {
+export const CustomHasManySelectComponent: React.FC<{ path: string }> = ({ path }) => {
   const { value, setValue } = useField<string>({ path });
   const [options, setOptions] = React.useState([]);
 
@@ -30,20 +30,37 @@ export const CustomSelectComponent: React.FC<{ path: string }> = ({ path }) => {
     fetchOptions();
   }, []);
 
-
+  React.useEffect(() => {
+    if (value && !Array.isArray(value)) {
+      // convert saved stringified array back to an array
+      const newValue = JSON.parse(value);
+      setValue(newValue)
+    }
+  }, [value]);
 
   return (
     <div>
       <label className='field-label'>
-        Custom Select
+        Custom Select - Has Many
       </label>
       <SelectInput
         path={path}
         name={path}
+        hasMany={true}
         options={options}
         value={value}
-        onChange={(e) => setValue(e.value)}
+        onChange={
+          (selectedOption) => {
+            if (!Array.isArray(selectedOption)) return
+            const newValue = selectedOption.map((option) => option.value)
+            setValue(newValue)
+          }
+        }
       />
     </div>
   )
 };
+
+function useCallback(arg0: (selectedOption: any) => void, arg1: ((val: unknown, modifyForm?: boolean) => void)[]) {
+  throw new Error('Function not implemented.');
+}
